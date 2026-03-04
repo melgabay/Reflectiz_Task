@@ -27,7 +27,7 @@ async function run() {
         });
 
         await setTimeout(3000);  // pause for 3 seconds to make sure the page is fully loaded
-        console.log("Block 1 OK: Website opened successfully"); // displays a message in the terminal
+        console.log("Block 1 OK: Website opened successfully."); // displays a message in the terminal
 
 
         // 2. Click the cookie consent button
@@ -88,7 +88,7 @@ async function run() {
 
         await page.click(sizeSelector);
         await setTimeout(2000);
-        console.log("Block 4 OK: product, option and size selected.");
+        console.log("Block 4 OK: Product, option and size selected.");
 
 
         // 5. Add to bag
@@ -156,7 +156,7 @@ async function run() {
         await page.click(selectors.addressLookup.postCode, { clickCount: 3 });
         await page.type(selectors.addressLookup.postCode, testData.addressLookup.postCode);
 
-        // Click Find Address
+        // 8.b Address
         await page.waitForSelector(selectors.addressLookup.findAddressButton, { visible: true, timeout: 5000 });
         await page.click(selectors.addressLookup.findAddressButton);
 
@@ -182,9 +182,7 @@ async function run() {
         if (options.length > 0) {
             await page.select(addressSelect, options[0].value);
             await setTimeout(2000);
-            console.log("Address selected.");
-        }
-        console.log("Confirmed address displayed."); console.log("Confirmed address displayed.");
+            console.log("Block 8.b OK: Address selected from the list.");}
 
         await page.waitForSelector(selectors.account.email, { visible: true, timeout: 5000 });
 
@@ -200,7 +198,7 @@ async function run() {
         await page.click(selectors.account.confirmPassword, { clickCount: 3 });
         await page.type(selectors.account.confirmPassword, testData.account.confirmPassword);
 
-        console.log("Block 8 OK: information filled.");
+        console.log("Block 8 OK: Information filled.");
 
 
         //9. Click the Apply button to go to the payment step (same button appears on 2 consecutive pages, we click it twice)
@@ -227,8 +225,6 @@ async function run() {
             .catch(() => false);
 
         if (cashPaymentChoiceAppeared) {
-            console.log("cashPaymentChoice found in the DOM.");
-
             // Some radio buttons exist but are not considered visible by Puppeteer.
             // We check it directly through the DOM.
             await page.$eval(cashPaymentChoiceSelector, el => {
@@ -239,7 +235,6 @@ async function run() {
             });
 
             await setTimeout(2000);
-            console.log("Payment option selected.");
         } else {
             console.log("cashPaymentChoice not found in the DOM: we are probably not yet on the correct payment step.");
         }
@@ -247,18 +242,16 @@ async function run() {
         // Wait for the card details block to be displayed
         await page.waitForSelector("#enterCardDetails", { visible: true, timeout: 5000 });
 
-        // 11. Fill in card fields (FAKE card, as requested)
         await clearAndType(page, selectors.payment.cardHolderName, testData.payment.CardHolderName);
         await clearAndType(page, selectors.payment.cardNumber, testData.payment.CardNumber);
         await clearAndType(page, selectors.payment.expiryDateMonthYear, testData.payment.ExpiryDateMonthYear);
         await clearAndType(page, selectors.payment.cardSecurityCode, testData.payment.CardSecurityCode);
 
-        console.log("Card block OK: name, number, expiry, CVV filled.");
+        console.log("Block 10 OK: Payment information filled.");
 
-        // promo code
+        // 11. Fill in promo code and uncheck "Remember Card Details"
         await clearAndType(page, selectors.payment.promoEntry, testData.payment.promoEntry);
 
-        // uncheck "Remember Card Details" if the checkbox exists
         const rememberSelector = "#RememberCardDetails";
         const rememberHandle = await page.$(rememberSelector);
 
@@ -269,14 +262,15 @@ async function run() {
 
             if (isChecked) {
                 await page.click(rememberSelector);
-                console.log("Remember Card Details unchecked.");
             }
         }
+            console.log("Block 11 OK: Promo code filled and 'Remember Card Details' unchecked.");
 
-        console.log("STOP: form filled up to the purchase point. We do NOT click 'Pay/Place order'.");
+
+        console.log("STOP: Form filled up to the purchase point. First step of the task completed successfully.");
         await setTimeout(10000);
 
-        // browser.close()
+        browser.close()
 
     } catch (error) {
         console.error("Error during the test:", error);
