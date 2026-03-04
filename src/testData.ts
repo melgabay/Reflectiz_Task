@@ -11,7 +11,7 @@ export const testData = {
 
   addressLookup: {
     houseId: "10",
-    postCode: "SW1A1AA"
+    postCode: "M11AE"
   },
 
   manualAddress: {
@@ -34,12 +34,11 @@ export const testData = {
     option: "Regular",
     size: "16"
   },
-
-  payment: {
-    CardHolderName: "Melissa Gabay",
-    CardNumber: "4111111111111111",
-    ExpiryDateMonthYear: "12/2030",
-    CardSecurityCode: "123",
-    promoEntry: "TEST10"
-  }
+payment: {
+  CardHolderName: "Melissa Gabay",
+  CardNumber: "4111111111111111",
+  ExpiryDateMonthYear: "12/30",
+  CardSecurityCode: "123",
+  promoEntry: "TEST10"
+}
 };

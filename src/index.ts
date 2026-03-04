@@ -3,143 +3,137 @@ import { testData } from "./testData";
 import { selectors } from "./selectors";
 import { setTimeout } from "node:timers/promises";
 
+
+//This prevents fields from keeping an old value.
+async function clearAndType(page: any, selector: string, value: string) {
+    await page.waitForSelector(selector, { visible: true, timeout: 5000 });
+    await page.click(selector, { clickCount: 3 }); // triple click to select all the text
+    await page.keyboard.press("Backspace");
+    await page.type(selector, value);
+}
+
 async function run() {
-    const browser = await puppeteer.launch({ // → ouvre le navigateur
+    const browser = await puppeteer.launch({ // opens the browser
         headless: false,
         defaultViewport: null
     });
 
-    const page = await browser.newPage(); // crée un onglet
+    const page = await browser.newPage(); // creates a new tab
 
-    // 1. va sur le site et attend que le DOM soit chargé
+    // 1. Go to the site and wait until the DOM is loaded
     try {
         await page.goto("https://www.freemans.com", {
             waitUntil: "domcontentloaded"
         });
 
-        // Pause de 3 secondes
-        await setTimeout(3000); //  attend 3 secondes pour s'assurer que la page est complètement chargée
-        console.log("Site ouvert avec succès"); //  affiche un message dans le terminal
+        await setTimeout(3000);  // pause for 3 seconds to make sure the page is fully loaded
+        console.log("Block 1 OK: Website opened successfully"); // displays a message in the terminal
 
-        // 2. Cliquer sur le bouton de consentement des cookies
-        // Sélecteur du bouton de consentement des cookies (à adapter selon le site)
-        const buttonSelectorConsentCookie = "button.button.primary.at-element-click-tracking";
 
-        // a) Attendre que le bouton soit présent
+        // 2. Click the cookie consent button
+        const buttonSelectorConsentCookie = "button.button.primary.at-element-click-tracking"; // selector
 
+        // a) Wait for the button to be present
         await page.waitForSelector(buttonSelectorConsentCookie, {
             visible: true,
             timeout: 3000
         });
-        console.log("Button found. Clicking it...");
 
-        // b) Cliquer sur le bouton
+        // b) Click the button
         await page.click(buttonSelectorConsentCookie);
-        console.log("Button clicked.");
-
         await setTimeout(2000);
+        console.log("Block 2 OK: Cookie consent button clicked.");
 
 
-        // 3. Clique sur le lien Women et vérifie que l'URL a changé
-        // Sélecteur
-        const womenLinkSelector =
-            'a[href="https://www.freemans.com/womens/_/N-1lZ1c?realestate=spotlight&incentive=homepage&intcampaign=spotlight&linkname=womens&location=1"]';
+        // 3. Click the Women link and verify that the URL changed
+        const womenLinkSelector = 'a[href="https://www.freemans.com/womens/_/N-1lZ1c?realestate=spotlight&incentive=homepage&intcampaign=spotlight&linkname=womens&location=1"]';
 
-
-        // a) Attendre que le lien soit présent
+        // a) Wait for the link to be present
         await page.waitForSelector(womenLinkSelector, {
             visible: true,
             timeout: 5000
         });
-        console.log("Lien Women trouvé. Clic...");
 
-        // b) Cliquer sur le lien
+        // b) Click the link
         await page.click(womenLinkSelector);
-
         await setTimeout(3000);
+        console.log("Block 3 OK: Women link clicked.");
 
-        console.log("URL après clic Women :", page.url());
 
-        //4. Choisir un article, sélectionner l'option et la taille
-        const productSelector = `li[data-uniqueid="${testData.product.dataUniqueid}"] a.img.listItemLink`;
+        //4. Choose a product, select the option and the size
+        const productSelector = `li[data-uniqueid="${testData.product.dataUniqueid}"] a.img.listItemLink`; // identify the product using its unique data-uniqueid attribute (testData.ts) and class structure 
 
         await page.waitForSelector(productSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
 
-        console.log("Produit trouvé. Clic...");
         await page.click(productSelector);
         await setTimeout(3000);
-
-        console.log("URL après clic article :", page.url());
 
         const optionSelector = `.extraOptionContainer .boxOptionOuter[data-optionvalue="${testData.product.option}"]`;
         const sizeSelector = `.option2Container .boxOptionOuter[data-optionvalue="${testData.product.size}"]`;
 
         await page.waitForSelector(optionSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
-        console.log("Option trouvée :", testData.product.option);
         await page.click(optionSelector);
         await setTimeout(2000);
 
         await page.waitForSelector(sizeSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
-        console.log("Taille trouvée :", testData.product.size);
+
         await page.click(sizeSelector);
         await setTimeout(2000);
+        console.log("Block 4 OK: product, option and size selected.");
 
-        // 5. Ajouter au panier
+
+        // 5. Add to bag
         const addToBagSelector = "button.primary.bagButton";
         await page.waitForSelector(addToBagSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
 
-
-        console.log("Bouton Add to Bag trouvé. Clic...");
         await page.click(addToBagSelector);
         await setTimeout(3000);
+        console.log("Block 5 OK: Item added to bag.");
 
-        console.log("Article ajouté au panier.");
 
-        // 6. Cliquer sur le bouton de checkout
+        // 6. Click the checkout button
         const checkoutButtonSelector = "#bddCheckout a";
         await page.waitForSelector(checkoutButtonSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
-        console.log("Bouton Checkout trouvé. Clic...");
+
         await page.click(checkoutButtonSelector);
         await setTimeout(3000);
-        console.log("URL après clic checkout :", page.url());
+        console.log("Block 6 OK: Checkout button clicked.");
 
-        //7. Cliquer sur le bouton de s'inscrire
+
+        //7. Click the register button
         const registerLinkSelector = "#registerLink";
 
         await page.waitForSelector(registerLinkSelector, {
             visible: true,
-            timeout: 10000
+            timeout: 5000
         });
 
-        console.log("Bouton register trouvé. Clic...");
         await page.click(registerLinkSelector);
         await setTimeout(3000);
+        console.log("Block 7 OK: Register button clicked.");
 
-        console.log("URL après clic register :", page.url());
-        // preuve que tu es au bon endroit
-        await page.waitForSelector(selectors.personal.firstName, { visible: true, timeout: 10000 });
-        console.log("Formulaire d'inscription chargé (FirstName visible).");
-        //8. Remplir le formulaire d'inscription
+        //8. Fill in the registration form
+        await page.waitForSelector(selectors.personal.firstName, { visible: true, timeout: 5000 }); // proof that we are in the right place
+
         // Title
-        await page.waitForSelector(selectors.personal.title, { visible: true, timeout: 10000 });
         await page.select(selectors.personal.title, testData.personal.title); // "Mrs"
 
-        // Prénom / Nom
+        // First name / Last name
         await page.click(selectors.personal.firstName, { clickCount: 3 });
         await page.type(selectors.personal.firstName, testData.personal.firstName);
 
@@ -147,177 +141,145 @@ async function run() {
         await page.type(selectors.personal.lastName, testData.personal.lastName);
 
         // DOB (select)
-        await page.select(selectors.personal.dobDay, testData.personal.dob_day);     // "12"
-        await page.select(selectors.personal.dobMonth, testData.personal.dob_month); // "05"
-        await page.select(selectors.personal.dobYear, testData.personal.dob_year);   // "1998"
+        await page.select(selectors.personal.dobDay, testData.personal.dob_day);
+        await page.select(selectors.personal.dobMonth, testData.personal.dob_month);
+        await page.select(selectors.personal.dobYear, testData.personal.dob_year);
 
-        // Téléphone
+        // Phone
         await page.click(selectors.personal.phone, { clickCount: 3 });
         await page.type(selectors.personal.phone, testData.personal.DayTimeTelephone);
 
-        console.log("Bloc 2 OK: identité + DOB + téléphone remplis.");
-
-        // Remplir house + postcode
+        // Fill house number + postcode
         await page.click(selectors.addressLookup.houseId, { clickCount: 3 });
         await page.type(selectors.addressLookup.houseId, testData.addressLookup.houseId);
 
         await page.click(selectors.addressLookup.postCode, { clickCount: 3 });
         await page.type(selectors.addressLookup.postCode, testData.addressLookup.postCode);
 
-        // Cliquer Find Address
-        await page.waitForSelector(selectors.addressLookup.findAddressButton, { visible: true, timeout: 10000 });
+        // Click Find Address
+        await page.waitForSelector(selectors.addressLookup.findAddressButton, { visible: true, timeout: 5000 });
         await page.click(selectors.addressLookup.findAddressButton);
 
-        console.log("Find Address cliqué, attente résultat...");
-
-
+        // Wait for the address list to appear
         const addressSelect = "#addressSelect";
+        await page.waitForSelector(addressSelect, { visible: true, timeout: 5000 });
 
-        const addressSelectAppeared = await page.waitForSelector(addressSelect, { visible: true, timeout: 10000 })
+        // Get all non-empty option values except the placeholder
+        const options = await page.$$eval("#addressSelect option", opts =>
+            opts
+                .map(o => ({
+                    value: (o as HTMLOptionElement).value,
+                    text: (o.textContent || "").trim()
+                }))
+                .filter(o =>
+                    o.value &&
+                    o.value.trim() !== "" &&
+                    !o.text.toLowerCase().includes("please select") // exclude placeholder options that invite the user to select an address
+                )
+        );
+
+        // Select the first real address
+        if (options.length > 0) {
+            await page.select(addressSelect, options[0].value);
+            await setTimeout(2000);
+            console.log("Address selected.");
+        }
+        console.log("Confirmed address displayed."); console.log("Confirmed address displayed.");
+
+        await page.waitForSelector(selectors.account.email, { visible: true, timeout: 5000 });
+
+        await page.click(selectors.account.email, { clickCount: 3 });
+        await page.type(selectors.account.email, testData.account.Email);
+
+        await page.click(selectors.account.confirmEmail, { clickCount: 3 });
+        await page.type(selectors.account.confirmEmail, testData.account.ConfirmEmail);
+
+        await page.click(selectors.account.password, { clickCount: 3 });
+        await page.type(selectors.account.password, testData.account.Password);
+
+        await page.click(selectors.account.confirmPassword, { clickCount: 3 });
+        await page.type(selectors.account.confirmPassword, testData.account.confirmPassword);
+
+        console.log("Block 8 OK: information filled.");
+
+
+        //9. Click the Apply button to go to the payment step (same button appears on 2 consecutive pages, we click it twice)
+        const applyButton = "#applybutton";
+
+        // Apply step 1
+        await page.waitForSelector(applyButton, { visible: true, timeout: 5000 });
+        await page.click(applyButton);
+        await setTimeout(3000);
+
+        // Apply step 2 (same id on next page)
+        await page.waitForSelector(applyButton, { visible: true, timeout: 5000 });
+        await page.click(applyButton);
+        await setTimeout(3000);
+        console.log("Block 9 OK: Apply button clicked twice.");
+
+
+        // 10. Choose the payment method
+        const cashPaymentChoiceSelector = "#cashPaymentChoice";
+        const cashPaymentChoiceAppeared = await page.waitForSelector(cashPaymentChoiceSelector, {
+            timeout: 5000
+        })
             .then(() => true)
             .catch(() => false);
 
-        if (addressSelectAppeared) {
-            // récupère les valeurs d'options non vides
-            const options = await page.$$eval("#addressSelect option", opts =>
-                opts.map(o => (o as HTMLOptionElement).value).filter(v => v && v.trim() !== "")
-            );
+        if (cashPaymentChoiceAppeared) {
+            console.log("cashPaymentChoice found in the DOM.");
 
-            console.log("Options d'adresse trouvées :", options.slice(0, 3));
+            // Some radio buttons exist but are not considered visible by Puppeteer.
+            // We check it directly through the DOM.
+            await page.$eval(cashPaymentChoiceSelector, el => {
+                const input = el as HTMLInputElement;
+                input.checked = true;
+                input.dispatchEvent(new Event("click", { bubbles: true }));
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            });
 
-            if (options.length > 0) {
-                await page.select("#addressSelect", options[0]); // déclenche onchange => confirme l'adresse
-                await setTimeout(2000);
-                console.log("Adresse sélectionnée.");
+            await setTimeout(2000);
+            console.log("Payment option selected.");
+        } else {
+            console.log("cashPaymentChoice not found in the DOM: we are probably not yet on the correct payment step.");
+        }
+
+        // Wait for the card details block to be displayed
+        await page.waitForSelector("#enterCardDetails", { visible: true, timeout: 5000 });
+
+        // 11. Fill in card fields (FAKE card, as requested)
+        await clearAndType(page, selectors.payment.cardHolderName, testData.payment.CardHolderName);
+        await clearAndType(page, selectors.payment.cardNumber, testData.payment.CardNumber);
+        await clearAndType(page, selectors.payment.expiryDateMonthYear, testData.payment.ExpiryDateMonthYear);
+        await clearAndType(page, selectors.payment.cardSecurityCode, testData.payment.CardSecurityCode);
+
+        console.log("Card block OK: name, number, expiry, CVV filled.");
+
+        // promo code
+        await clearAndType(page, selectors.payment.promoEntry, testData.payment.promoEntry);
+
+        // uncheck "Remember Card Details" if the checkbox exists
+        const rememberSelector = "#RememberCardDetails";
+        const rememberHandle = await page.$(rememberSelector);
+
+        if (rememberHandle) {
+            const isChecked = await page.$eval(rememberSelector, el => {
+                return (el as HTMLInputElement).checked;
+            });
+
+            if (isChecked) {
+                await page.click(rememberSelector);
+                console.log("Remember Card Details unchecked.");
             }
         }
 
-        const manualSection = "#addressInputAllSection";
+        console.log("STOP: form filled up to the purchase point. We do NOT click 'Pay/Place order'.");
+        await setTimeout(10000);
 
-        const manualAppeared = await page.waitForSelector(manualSection, { visible: true, timeout: 3000 })
-            .then(() => true)
-            .catch(() => false);
+        // browser.close()
 
-        if (manualAppeared) {
-            console.log("Mode manuel activé (postcode non trouvé).");
-
-            await page.click("#address_1", { clickCount: 3 });
-            await page.type("#address_1", testData.manualAddress.address1);
-
-            await page.click("#address_2", { clickCount: 3 });
-            await page.type("#address_2", testData.manualAddress.address2);
-
-            await page.click("#city", { clickCount: 3 });
-            await page.type("#city", testData.manualAddress.city);
-
-            await page.click("#county", { clickCount: 3 });
-            await page.type("#county", testData.manualAddress.county);
-
-            await page.click("#post_code", { clickCount: 3 });
-            await page.type("#post_code", testData.manualAddress.postCode);
-
-            console.log("Adresse manuelle remplie.");
-        }
-
-        const confirmedSection = "#addressDetailsSection";
-        const confirmed = await page.waitForSelector(confirmedSection, { visible: true, timeout: 10000 })
-            .then(() => true)
-            .catch(() => false);
-
-        if (confirmed) console.log("Adresse confirmée affichée.");
-
-        await page.waitForSelector(selectors.account.email, { visible: true, timeout: 10000 });
-
-await page.click(selectors.account.email, { clickCount: 3 });
-await page.type(selectors.account.email, testData.account.Email);
-
-await page.click(selectors.account.confirmEmail, { clickCount: 3 });
-await page.type(selectors.account.confirmEmail, testData.account.ConfirmEmail);
-
-await page.click(selectors.account.password, { clickCount: 3 });
-await page.type(selectors.account.password, testData.account.Password);
-
-await page.click(selectors.account.confirmPassword, { clickCount: 3 });
-await page.type(selectors.account.confirmPassword, testData.account.confirmPassword);
-
-console.log("Bloc 5 OK: compte rempli.");
-
-//Continue filling payment details if needed...
-const applyButton = "#applybutton";
-
-await page.waitForSelector(applyButton, { visible: true, timeout: 10000 });
-await page.click(applyButton);
-await setTimeout(3000);
-
-console.log("Après 1er apply, URL =", page.url());
-
-const visibleErrorsAfterFirstApply = await page.$$eval(".error", elements =>
-  elements
-    .map(el => ({
-      text: (el.textContent || "").trim(),
-      display: window.getComputedStyle(el).display
-    }))
-    .filter(e => e.display !== "none" && e.text.length > 0)
-);
-
-console.log("Erreurs après 1er apply :", visibleErrorsAfterFirstApply);
-
-const pageContentAfterFirstApply = await page.content();
-console.log("La page contient cashPaymentChoice ?", pageContentAfterFirstApply.includes("cashPaymentChoice"));
-
-//another bouton à cliquer pour continuer
-const secondApplyAppeared = await page.waitForSelector(applyButton, { visible: true, timeout: 3000 })
-  .then(() => true)
-  .catch(() => false);
-
-if (secondApplyAppeared) {
-  await page.click(applyButton);
-  await setTimeout(3000);
-
-  console.log("Après 2e apply, URL =", page.url());
-
-  const visibleErrorsAfterSecondApply = await page.$$eval(".error", elements =>
-    elements
-      .map(el => ({
-        text: (el.textContent || "").trim(),
-        display: window.getComputedStyle(el).display
-      }))
-      .filter(e => e.display !== "none" && e.text.length > 0)
-  );
-
-  console.log("Erreurs après 2e apply :", visibleErrorsAfterSecondApply);
-
-  const pageContentAfterSecondApply = await page.content();
-  console.log("La page contient cashPaymentChoice après 2e apply ?", pageContentAfterSecondApply.includes("cashPaymentChoice"));
-}
-
-// 9. Choisir le moyen de paiement
-const cashPaymentChoiceSelector = "#cashPaymentChoice";
-const cashPaymentChoiceAppeared = await page.waitForSelector(cashPaymentChoiceSelector, {
-  timeout: 5000
-})
-  .then(() => true)
-  .catch(() => false);
-
-if (cashPaymentChoiceAppeared) {
-  console.log("cashPaymentChoice trouvé dans le DOM.");
-
-  // Certains radios existent mais ne sont pas considérés comme visibles par Puppeteer.
-  // On le coche directement via le DOM.
-  await page.$eval(cashPaymentChoiceSelector, el => {
-    const input = el as HTMLInputElement;
-    input.checked = true;
-    input.dispatchEvent(new Event("click", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  });
-
-  await setTimeout(2000);
-  console.log("Option de paiement cash sélectionnée. URL =", page.url());
-} else {
-  console.log("cashPaymentChoice non trouvé dans le DOM : on n'est probablement pas encore sur la bonne étape de paiement.");
-}
-} catch (error) {
-        console.error("Erreur pendant le test :", error);
+    } catch (error) {
+        console.error("Error during the test:", error);
     }
 }
 
