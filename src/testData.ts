@@ -26,7 +26,13 @@ export const testData = {
     Email: "melissa.reflectiz.test@example.com",
     ConfirmEmail: "melissa.reflectiz.test@example.com",
     Password: "Testpass123",
-    confirmPassword: "confirmPassword"
+    confirmPassword: "Testpass123"
+  },
+
+  product: {
+    dataUniqueid: "960856_18",
+    option: "Regular",
+    size: "16"
   },
 
   payment: {
