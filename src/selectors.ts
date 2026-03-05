@@ -1,28 +1,37 @@
-// liste des sélecteurs que mon script utilisera identique à ceux utilisés dans le script de test pour éviter les erreurs de sélection
-// Dans selectors.ts, les clés de gauche (firstName, lastName, etc.) peuvent être propres et lisibles.
-// Les vraies valeurs importantes sont celles de droite :
+// List of selectors used by the script.
+// They are kept aligned with the selectors from the test script to avoid selection mismatches.
+// In `selectors.ts`, the keys on the left (`firstName`, `lastName`, etc.) are readable labels,
+// while the values on the right are the actual CSS selectors used by Puppeteer.
 export const selectors = {
-personal: {
-  title: "#Title",
-  firstName: "#FirstName",
-  lastName: "#LastName",
-  dobDay: "#dob_day",
-  dobMonth: "#dob_month",
-  dobYear: "#dob_year",
-  phone: "#DayTimeTelephone"
-},
+  personal: {
+    Title: "#Title",
+    FirstName: "#FirstName",
+    LastName: "#LastName",
+    dob_day: "#dob_day",
+    dob_month: "#dob_month",
+    dob_year: "#dob_year",
+    DayTimeTelephone: "#DayTimeTelephone"
+  },
 
   addressLookup: {
     houseId: "#houseId",
     postCode: "#postCode",
-    findAddressButton: "#searchAddressImageButton"
+    searchAddressImageButton: "#searchAddressImageButton"
   },
 
   account: {
-    email: "#Email",
-    confirmEmail: "#ConfirmEmail",
-    password: "#Password",
+    Email: "#Email",
+    ConfirmEmail: "#ConfirmEmail",
+    Password: "#Password",
     confirmPassword: "#confirmPassword"
+  },
+
+  product: {
+    productCode: "productCode",
+    dataUniqueid: "data-uniqueid",
+    option: "data-optionvalue-option",
+    size: "data-optionvalue-size",
+    dataMasteritem: "data-masteritem"
   },
 
   payment: {

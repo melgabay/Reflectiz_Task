@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,11 +12,13 @@
   "type": "commonjs",
   "dependencies": {
     "puppeteer": "^24.37.5",
+    "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/node": "^25.3.3",
+    "@types/sqlite3": "^3.1.11",
     "ts-node": "^10.9.2"
   }
 }

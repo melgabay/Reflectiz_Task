@@ -1,8 +1,8 @@
 export const testData = {
   personal: {
-    title: "Mrs",
-    firstName: "Melissa",
-    lastName: "Gabay",
+    Title: "Mrs",
+    FirstName: "Melissa",
+    LastName: "Gabay",
     dob_day: "12",
     dob_month: "05",
     dob_year: "1998",
@@ -10,16 +10,9 @@ export const testData = {
   },
 
   addressLookup: {
-    houseId: "10",
-    postCode: "M11AE"
-  },
-
-  manualAddress: {
-    address1: "10 Downing Street",
-    address2: "",
-    city: "London",
-    county: "Greater London",
-    postCode: "SW1A1AA"
+    houseId: "10 Downing Street",
+    postCode: "M11AE",
+    searchAddressImageButton: ""
   },
 
   account: {
@@ -30,15 +23,18 @@ export const testData = {
   },
 
   product: {
+    productCode: "960856",
     dataUniqueid: "960856_18",
+    dataMasteritem: "961338",
     option: "Regular",
     size: "16"
   },
-payment: {
-  CardHolderName: "Melissa Gabay",
-  CardNumber: "4111111111111111",
-  ExpiryDateMonthYear: "12/30",
-  CardSecurityCode: "123",
-  promoEntry: "TEST10"
-}
+
+  payment: {
+    cardHolderName: "Melissa Gabay",
+    cardNumber: "4111111111111111",
+    expiryDateMonthYear: "12/30",
+    cardSecurityCode: "123",
+    promoEntry: "TEST10"
+  }
 };
