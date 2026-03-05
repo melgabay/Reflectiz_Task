@@ -42,22 +42,23 @@ The script in `src/index.ts` performs the following actions:
 1. Opens `https://www.freemans.com`
 2. Accepts the cookie banner
 3. Navigates to the Women category page
-4. Locates a product dynamically
-5. Opens the product page
-6. Selects a product option and size
-7. Adds the product to the bag
-8. Checks that the bag count increased
-9. Opens the checkout flow
-10. Clicks the register option
-11. Fills the registration form
-12. Searches and selects an address
-13. Fills account credentials
-14. Clicks the Apply button through the next steps
-15. Selects a payment method when needed
-16. Fills card details using test data
-17. Fills a promo code
-18. Unchecks the "Remember Card Details" checkbox if present
-19. Stops at the purchase point without submitting an actual order
+4. Locates a product dynamically using a stable product code
+5. If the product is not found on the current listing page, clicks the pagination "next" control and searches again
+6. Opens the matched product page
+7. Selects a product option and size
+8. Adds the product to the bag
+9. Checks that the bag count increased
+10. Opens the checkout flow
+11. Clicks the register option
+12. Fills the registration form
+13. Searches and selects an address
+14. Fills account credentials
+15. Clicks the Apply button through the next steps
+16. Selects a payment method when needed
+17. Fills card details using test data
+18. Fills a promo code
+19. Unchecks the "Remember Card Details" checkbox if present
+20. Stops at the purchase point without submitting an actual order
 
 ### SQLite integration
 The file `src/database.ts`:
@@ -156,16 +157,19 @@ One important issue discovered during implementation is that the website's `data
 For example, a product may appear with one value on one day and another on a different day.
 
 To make the automation more robust, the script does not rely only on the full dynamic identifier.
-Instead, it uses a stable `productCode` and searches the product list for an item whose `data-uniqueid` starts with that product code.
+Instead, it extracts and uses the stable `productCode`, which is the part before the underscore, and searches the product list for an item whose `data-uniqueid` starts with that product code.
 
 Example:
 
 - unstable values: `960856_14`, `960856_18`
 - stable part used by the script: `960856`
 
-The script then builds the correct clickable selector dynamically from the variant that is currently available on the page.
+The script first scans the current listing page for a matching product code.
+If no matching product card is found, it clicks the pagination "next" control (`span.pagingNextTextContainer` inside its parent link), waits for the next listing page to load, and searches again there.
 
-This was implemented specifically to handle day-to-day variation in the product listing.
+Once a matching product is found, the script builds the correct clickable selector dynamically from the variant that is currently available on the page.
+
+This was implemented specifically to handle both day-to-day variation in the product identifier and cases where the product is located on the next pagination page instead of the current one.
 
 ## Requirements
 
@@ -313,7 +317,7 @@ To answer the task requirements concretely:
 - SQL queries were added in a dedicated file.
 - The code was commented.
 - Error handling was added.
-- A dynamic strategy was implemented for unstable product identifiers.
+- A dynamic strategy was implemented for unstable product identifiers, including a fallback to the next pagination page when needed.
 - A README was written to explain installation, structure, and execution.
 
 ## Deliverables Included

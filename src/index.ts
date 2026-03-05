@@ -178,31 +178,61 @@ async function run() {
         // `rawProductId` can change, but `productCode` (before the underscore) stays stable.
         // Example: rawProductId = "960856_18" => productCode = "960856".
 
-        // Wait until product cards are present on the listing page (so $$eval can iterate reliably)
-        await page!.waitForSelector('li[data-uniqueid] a.img.listItemLink', { visible: true, timeout: 5000 });
+        const listingCardSelector = 'li[data-uniqueid] a.img.listItemLink';
+        const nextPageTextSelector = 'span.pagingNextTextContainer';
 
-        // Find the first data-uniqueid that matches the stable product code (e.g. 960856_*)
-        const foundUniqueId = await page!.$$eval(
-            'li[data-uniqueid]',
-            (items, code) => {
-                for (const li of items) {
-                    const id = li.getAttribute('data-uniqueid') || '';
-                    if (id.startsWith(String(code) + '_')) return id;
-                }
-                return null;
-            },
-            productCode
-        );
+        async function findProductOnCurrentPage(page: Page, code: string) {
+            await page.waitForSelector(listingCardSelector, { visible: true, timeout: 5000 });
 
-        if (!foundUniqueId) {
-            throw new Error(`Block 4 failed: no product card found with code ${productCode} (expected data-uniqueid like ${productCode}_*)`);
+            const foundUniqueId = await page.$$eval(
+                'li[data-uniqueid]',
+                (items, productCode) => {
+                    for (const li of items) {
+                        const id = li.getAttribute('data-uniqueid') || '';
+                        if (id.startsWith(String(productCode) + '_')) return id;
+                    }
+                    return null;
+                },
+                code
+            );
+
+            if (!foundUniqueId) return null;
+
+            return {
+                foundUniqueId,
+                selector: `li[data-uniqueid="${foundUniqueId}"] a.img.listItemLink`
+            };
         }
 
-        // Click the product card using the variant-specific unique id we just discovered.
-        const productSelector = `li[data-uniqueid="${foundUniqueId}"] a.img.listItemLink`;
+        currentStep = "Block 4: Product lookup";
+
+        let productMatch = await findProductOnCurrentPage(page!, productCode);
+
+        if (!productMatch) {
+            console.log(`Block 4: no product found with code ${productCode} on current page, clicking next page...`);
+
+            await page!.waitForSelector(nextPageTextSelector, { visible: true, timeout: 5000 });
+            await page!.evaluate((selector) => {
+                const span = document.querySelector(selector);
+                const link = span?.closest('a') as HTMLAnchorElement | null;
+                if (!link) {
+                    throw new Error('Next pagination link not found from span.pagingNextTextContainer');
+                }
+                link.click();
+            }, nextPageTextSelector);
+
+            await page!.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 5000 }).catch(() => null);
+            await setTimeout(3000);
+
+            productMatch = await findProductOnCurrentPage(page!, productCode);
+        }
+
+        if (!productMatch) {
+            throw new Error(`Block 4 failed: no product card found with code ${productCode} (expected data-uniqueid like ${productCode}_*) on the current page or the next page.`);
+        }
 
         currentStep = "Block 4: Product click";
-        await safeWaitAndClick(page!, productSelector, "Block 4: Product click");
+        await safeWaitAndClick(page!, productMatch.selector, "Block 4: Product click");
         await setTimeout(3000);
 
         const optionSelector = `.extraOptionContainer .boxOptionOuter[data-optionvalue="${dbValue(formData, "option", testData.product.option)}"]`;
@@ -222,7 +252,7 @@ async function run() {
 
         await page!.click(sizeSelector);
         await setTimeout(2000);
-        console.log("Block 4 OK: Product, option and size selected.");
+        console.log(`Block 4 OK: Product ${productMatch.foundUniqueId}, option and size selected.`);
 
 
         // 5. Add to bag and verify that the bag count increased
